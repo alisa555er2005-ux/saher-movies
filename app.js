@@ -211,6 +211,25 @@ const FREE_SERIES = [
         { n:1, yt:'twR2FLalwAE', t:'الحلقة ١' }
       ]}
     ]
+  },
+  {
+    key:'el-beit-beity', title:'مسلسل البيت بيتي', channel:'Screen 2000 (المنتج)', match:['البيت بيتي','بيت بيتي'],
+    seasons:[
+      { name:'حلقات كاملة', episodes:[
+        { n:1, yt:'Pf93S0pEIO8', t:'الهروب من الفندق' },
+        { n:2, yt:'Z5xZmw6rWhI', t:'العيلة المسكونة' },
+        { n:3, yt:'B2dX1ybfmFo', t:'مشروع العمر' },
+        { n:4, yt:'HlgXz_RZ3xo', t:'القرية الفاضية' },
+        { n:5, yt:'n28G6P4oYgo', t:'ساعة منتصف الليل' },
+        { n:6, yt:'7JQdxuC8Mvk', t:'لعنة الفندق' },
+        { n:7, yt:'gbu7aYYNIgQ', t:'الوصية الأخيرة' },
+        { n:8, yt:'A87g1YNGMpM', t:'الجار الميت' },
+        { n:9, yt:'Jsv9Dm4lEIs', t:'عفاريت السطوح' },
+        { n:10, yt:'etW3dSR1SGc', t:'باب السرداب' },
+        { n:11, yt:'5FFqJrEDyhE', t:'هروب مستحيل' },
+        { n:12, yt:'6D3oGuRt2t0', t:'المقبرة الملعونة' }
+      ]}
+    ]
   }
 ];
 
