@@ -227,7 +227,15 @@ const FREE_SERIES = [
         { n:9, yt:'Jsv9Dm4lEIs', t:'عفاريت السطوح' },
         { n:10, yt:'etW3dSR1SGc', t:'باب السرداب' },
         { n:11, yt:'5FFqJrEDyhE', t:'هروب مستحيل' },
-        { n:12, yt:'6D3oGuRt2t0', t:'المقبرة الملعونة' }
+        { n:12, yt:'6D3oGuRt2t0', t:'المقبرة الملعونة' },
+        { n:13, yt:'rZYjlMbl6Ho', t:'ليلة مع المهرج' },
+        { n:14, yt:'r1Cqlz_H1WA', t:'لعنة البيت القديم' },
+        { n:15, yt:'0BZir8AbQeA', t:'القصر الملعون' },
+        { n:16, yt:'neL_IBhHWj8', t:'لعنة الأوضة 215' },
+        { n:17, yt:'4agUqntZN4A', t:'أسرار مقفلة' },
+        { n:18, yt:'w0Qei0udqEA', t:'ورطة مع عفريت' },
+        { n:19, yt:'DzCgHkBGYQk', t:'لعنة الورقة' },
+        { n:20, yt:'H6JU0JF7LJ4', t:'عفاريت القصر' }
       ]}
     ]
   }
