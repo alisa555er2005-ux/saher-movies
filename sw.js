@@ -2,7 +2,7 @@
    بيخلي التطبيق يشتغل كتطبيق متثبت، وبيحفظ الواجهة عشان يفتح بسرعة.
    بيانات الأفلام بتيجي من TMDB مباشرة، ولو مفيش نت بيستخدم آخر نسخة محفوظة. */
 
-const SHELL = 'saher-shell-v1';
+const SHELL = 'saher-shell-v2';
 const DATA = 'saher-data-v1';
 const SHELL_FILES = ['./', './index.html', './app.js', './manifest.webmanifest', './icon.svg'];
 
@@ -47,10 +47,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // باقي الملفات: من الكاش ولو مش موجود من النت
-  event.respondWith(
-    caches.match(req).then(hit => hit || fetch(req).catch(() =>
-      req.mode === 'navigate' ? caches.match('./index.html') : Response.error()
-    ))
-  );
+  // ملفات التطبيق نفسها: من النت الأول (عشان أي تحديث يوصلك فورًا)، ولو مفيش نت من الكاش
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(SHELL).then(c => c.put(req, copy)).catch(() => {});
+        return res;
+      }).catch(() => caches.match(req).then(hit =>
+        hit || (req.mode === 'navigate' ? caches.match('./index.html') : Response.error())
+      ))
+    );
+    return;
+  }
+
+  event.respondWith(fetch(req).catch(() => caches.match(req)));
 });
