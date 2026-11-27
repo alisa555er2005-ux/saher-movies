@@ -112,6 +112,8 @@ async function viewHome() {
 
     <h2 class="section">الأكثر مشاهدة دلوقتي</h2>${row(trending.results)}
     <h2 class="section">مصري وعربي <small>أفلام ومسلسلات</small></h2>${row(arabic)}
+    <h2 class="section">أفلام مصرية كاملة — شغّلها هنا <small>مجانًا وقانوني</small></h2>${freeRow(FREE_MOVIES, 'movie')}
+    <h2 class="section">كرتون كامل — بكار <small>حلقات بتشتغل هنا</small></h2>${freeRow(FREE_SERIES, 'series')}
     <h2 class="section">أفلام مشهورة</h2>${row(popular.results)}
   `;
   bind();
@@ -174,6 +176,130 @@ async function viewSearch(q) {
   bind();
 }
 
+
+/* ---------- مكتبة المشاهدة المجانية القانونية ----------
+   كل حاجة هنا بتتفرج جوه التطبيق: فيديوهات يوتيوب من القناة اللي ناشرة الفيديو،
+   أو أفلام ملك عام من أرشيف الإنترنت. */
+
+const FREE_MOVIES = [
+  { key:'el-shaitan', title:'الشيطان يقدم حلا', yt:'7Gsy7KdhjME', channel:'Rerun 4K', match:['الشيطان يقدم حلا'] },
+  { key:'el-melk', title:'الملك لله', yt:'NhTpYvhnE4E', channel:'Rerun 4K', match:['الملك لله'] },
+  { key:'ga3altani', title:'جعلتني مجرماً', yt:'sLXkhu2q73o', channel:'Reel Movies', match:['جعلتني مجرما'] },
+  { key:'el-badla', title:'البدلة', yt:'F8OdAX2s2Ak', channel:'Reel Movies', match:['البدله'] },
+  { key:'el-khaliya', title:'الخلية', yt:'eIpixDQcQGQ', channel:'Reel Movies', match:['الخليه'] },
+  { key:'khareg-law', title:'خارج على القانون', yt:'QXwLDo18mBM', channel:'أمير الأفلام المصرية', match:['خارج علي القانون','خارج على القانون'] },
+  { key:'masgoon', title:'مسجون ترانزيت', yt:'Cgr6tHoOVIg', channel:'سكت شات', match:['مسجون ترانزيت'] },
+  { key:'captain-masr', title:'كابتن مصر', yt:'94g5_Fyq96w', channel:'سينما أفلام', match:['كابتن مصر'] },
+  { key:'el-khediwy', title:'الخديوي', yt:'fsNN0uuGofA', channel:'أحمد العوضي (القناة الرسمية)', match:['الخديوى','الخديوي'] },
+  { key:'el-rahina', title:'الرهينة', yt:'NwzIUrTqHR8', channel:'FunnyFlix', match:['الرهينه'] }
+];
+
+const FREE_SERIES = [
+  {
+    key:'bakkar', title:'مسلسل بكار', channel:'EMPC KIDS · ماسبيرو أطفال', match:['بكار'],
+    seasons:[
+      { name:'الجزء الأول', episodes:[
+        { n:1, yt:'jb8YoiLsRD4', t:'الحلقة ١' },
+        { n:5, yt:'9N_oDmoYmgc', t:'الحلقة ٥' },
+        { n:6, yt:'xpwujurS2S0', t:'الحلقة ٦' },
+        { n:9, yt:'ZxlobKz3mJ0', t:'الحلقة ٩' }
+      ]},
+      { name:'الجزء الثاني', episodes:[
+        { n:1, yt:'KnUlHSn23eY', t:'الجزء التاني كامل بدون فواصل' }
+      ]},
+      { name:'الجزء السادس', episodes:[
+        { n:1, yt:'twR2FLalwAE', t:'الحلقة ١' }
+      ]}
+    ]
+  }
+];
+
+const ytThumb = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+
+function normAr(s) {
+  return String(s || '')
+    .replace(/[\u064B-\u0652\u0640]/g, '')
+    .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim().toLowerCase();
+}
+
+function findFree(item) {
+  const keys = [item.title, item.name, item.original_title, item.original_name]
+    .filter(Boolean).map(normAr);
+  const hit = (list) => list.find(f => (f.match || []).some(m => keys.includes(normAr(m))));
+  const s = hit(FREE_SERIES);
+  if (s) return { kind: 'series', item: s };
+  const m = hit(FREE_MOVIES);
+  if (m) return { kind: 'movie', item: m };
+  return null;
+}
+
+function freeCard(f, kind) {
+  const id = kind === 'series' ? (f.seasons[0].episodes[0].yt) : f.yt;
+  return `<div class="card" data-play-free="${kind}:${f.key}">
+    <div class="poster-wrap">
+      <img class="poster" loading="lazy" src="${ytThumb(id)}" alt="${esc(f.title)}">
+      <span class="badge play-badge">▶ شغّل</span>
+    </div>
+    <div class="t">${esc(f.title)}</div>
+    <div class="y">${esc(f.channel)}</div>
+  </div>`;
+}
+
+function freeRow(list, kind) {
+  return `<div class="row-scroll">${list.map(f => freeCard(f, kind)).join('')}</div>`;
+}
+
+function playYouTube(yt, title) {
+  const modal = document.getElementById('playerModal');
+  document.getElementById('playerTitle').textContent = title || 'مشاهدة';
+  document.getElementById('playerFrame').src =
+    `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+  modal.classList.add('open');
+}
+
+function epAll(s) {
+  const out = [];
+  s.seasons.forEach((se, si) => se.episodes.forEach(e => out.push({ ...e, season: si, seasonName: se.name })));
+  return out;
+}
+
+function playFree(kind, key, epIdx) {
+  if (kind === 'movie') {
+    const m = FREE_MOVIES.find(x => x.key === key);
+    if (m) playYouTube(m.yt, m.title);
+    return;
+  }
+  const s = FREE_SERIES.find(x => x.key === key);
+  if (!s) return;
+  const ep = (epIdx === undefined || epIdx === null || epIdx === '')
+    ? s.seasons[0].episodes[0] : epAll(s)[Number(epIdx)];
+  if (ep) playYouTube(ep.yt, `${s.title} — ${ep.t}`);
+}
+
+function viewFreeSeries(key) {
+  const s = FREE_SERIES.find(x => x.key === key);
+  if (!s) { app.innerHTML = `<div class="empty">مش لاقي المسلسل ده.</div>`; return; }
+  const eps = epAll(s);
+  app.innerHTML = `
+    <h2 class="section">${esc(s.title)} <small>${esc(s.channel)}</small></h2>
+    <p class="note">اضغط على أي حلقة وهتشتغل هنا على طول، من قناة الناشر نفسها على يوتيوب.</p>
+    ${s.seasons.map(se => `
+      <div class="block">
+        <h3>${esc(se.name)}</h3>
+        <div class="eplist">
+          ${se.episodes.map(e => {
+            const idx = eps.findIndex(x => x.yt === e.yt);
+            return `<button class="ep" data-play-free="series:${s.key}:${idx}">
+              <span class="epn">▶</span><span class="ept">${esc(e.t)}</span></button>`;
+          }).join('')}
+        </div>
+      </div>`).join('')}
+  `;
+  bind();
+}
+
 const PROVIDER_KINDS = [
   ['flatrate', 'اشتراك مدفوع'],
   ['free', 'مجاني'],
@@ -220,6 +346,20 @@ async function viewDetail(type, id) {
       : `<p class="note">مفيش منصة رسمية في مصر بتبثّه دلوقتي.</p>`;
   }
 
+  const free = findFree(d);
+  const playBlock = free ? `
+    <div class="block play-block">
+      <h3>${free.kind === 'series' ? 'شغّل الحلقات هنا مجانًا' : 'شغّل الفيلم هنا مجانًا'}</h3>
+      <p class="note" style="margin:0 0 10px">${esc(free.item.title)} — من قناة ${esc(free.item.channel)} على يوتيوب.</p>
+      <button class="btn primary" data-play-free="${free.kind}:${free.item.key}">▶ شغّل دلوقتي</button>
+      ${free.kind === 'series' ? `<button class="btn ghost" data-go="#/fs/${free.item.key}" style="margin-inline-start:8px">الحلقات</button>` : ''}
+    </div>` : `
+    <div class="block">
+      <h3>مفيش نسخة مجانية قانونية للعمل ده</h3>
+      <p class="note" style="margin:0">العمل ده مش متاح مجانًا بشكل قانوني، عشان كده مفيش زرار تشغيل هنا.
+      شوف المنصات الرسمية اللي فوق، أو جرّب قسم <a href="#/free" style="color:#22d3ee">مجاني</a> اللي فيه أفلام وكرتون بيتفرجوا جوه التطبيق.</p>
+    </div>`;
+
   app.innerHTML = `
   <div class="detail-hero">
     <img class="bd" src="${img(d.backdrop_path, 'w780')}" alt="">
@@ -239,6 +379,7 @@ async function viewDetail(type, id) {
   </div>
 
   <div class="genres">${genres}</div>
+  ${playBlock}
   ${d.tagline ? `<p class="tagline">«${esc(d.tagline)}»</p>` : ''}
   <p class="tagline">${esc(d.overview || 'مفيش وصف بالعربي للعمل ده.')}</p>
 
@@ -352,6 +493,7 @@ async function route() {
     }
     if (p[0] === 'search') return viewSearch(decodeURIComponent(p[1] || ''));
     if (p[0] === 'free') return viewFree();
+    if (p[0] === 'fs' && p[1]) return viewFreeSeries(p[1]);
     return viewHome();
   } catch (e) {
     app.innerHTML = `<div class="empty">حصلت مشكلة في التحميل.<br>اتأكد من النت وجرّب تاني.</div>`;
@@ -374,6 +516,12 @@ document.addEventListener('click', (e) => {
     document.querySelectorAll('[data-free]').forEach(b => b.classList.remove('active'));
     freeBtn.classList.add('active');
     loadFree(freeBtn.dataset.free);
+    return;
+  }
+  const playBtn = e.target.closest('[data-play-free]');
+  if (playBtn) {
+    const parts = playBtn.dataset.playFree.split(':');
+    playFree(parts[0], parts[1], parts[2]);
     return;
   }
   const freeItem = e.target.closest('[data-free-idx]');
