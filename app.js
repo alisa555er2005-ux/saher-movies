@@ -346,12 +346,12 @@ async function route() {
 
   try {
     if (!p.length || p[0] === 'home') return viewHome();
+    if ((p[0] === 'movie' || p[0] === 'tv') && p[1]) return viewDetail(p[0], p[1]);
     if (p[0] === 'movies' || p[0] === 'tv' || p[0] === 'cartoon') {
       return p[1] === 'top' ? viewListTop(p[0]) : viewList(p[0]);
     }
     if (p[0] === 'search') return viewSearch(decodeURIComponent(p[1] || ''));
     if (p[0] === 'free') return viewFree();
-    if ((p[0] === 'movie' || p[0] === 'tv') && p[1]) return viewDetail(p[0], p[1]);
     return viewHome();
   } catch (e) {
     app.innerHTML = `<div class="empty">حصلت مشكلة في التحميل.<br>اتأكد من النت وجرّب تاني.</div>`;
